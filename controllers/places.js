@@ -1,21 +1,19 @@
-const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 
 const HttpError = require("./../models/http-error");
-const { USERS, PLACES } = require("./../DUMMY_DATA");
+const { USERS } = require("./../DUMMY_DATA");
 const Place = require("./../models/places");
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   console.log("Get request to api/places/:placeId");
   const placeId = req.params.placeId;
 
-  Place.findById(placeId, (err, place) => {
-    if(err)
-      return next(new HttpError("Place not found!!", 404));
-    
-    return res.json({ message: "Place Found!!", place });
-  })
-
+  try {
+    const place = await Place.findById(placeId);
+    res.json({ message: "Place Found!!", place });
+  } catch (err) {
+    return next(new HttpError("Place not found!!", 404));
+  }
 };
 
 const getPlacesByUserId = async (req, res, next) => {
@@ -28,28 +26,27 @@ const getPlacesByUserId = async (req, res, next) => {
     return next(new HttpError("User not found", 404));
   }
 
-  console.log(userId);
-
-  Place.find({creator: userId}, (err, places) => {
-    if(err)
-      return next(new HttpError("Places not found", 404))
+  try {
+    const places = await Place.find({ creator: userId });
     res.json({ message: "Places Found!!", places });
-  })
+  } catch (err) {
+    return next(new HttpError("Places not found", 404));
+  }
 };
 
 const deletePlaceById = async (req, res, next) => {
   console.log("delete request to api/places/:placeId");
   const placeId = req.params.placeId;
 
-    Place.findOneAndDelete({_id : placeId}, (err, result) => {
-      if(err)
-        return next(new HttpError("Place not found", 404));
-      
-      return res.json({ message: "Deleted Place!!", result });
-    })
+  try {
+    const result = Place.findOneAndDelete({ _id: placeId });
+    return res.json({ message: "Deleted Place!!", result });
+  } catch (err) {
+    return next(new HttpError("Place not found", 404));
+  }
 };
 
-const updatePlaceById = (req, res, next) => {
+const updatePlaceById = async (req, res, next) => {
   // console.log('patch request to api/places/:placeId');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -60,19 +57,16 @@ const updatePlaceById = (req, res, next) => {
   const placeId = req.params.placeId;
   const { title, description, address } = req.body;
 
-  const index = PLACES.findIndex((place) => place.id === placeId);
-  if (index === -1) {
-    return next(new HttpError("Place not found", 404));
+  try {
+    const result = Place.findByIdAndUpdate(placeId, {
+      title: title,
+      description: description,
+      address: address,
+    });
+    res.json({ message: "Updated place!!", result });
+  } catch (err) {
+    return next(new HttpError("Place not updated, some error occured", 404));
   }
-
-  const updatedPlace = { ...PLACES[index] };
-  updatedPlace["title"] = title;
-  updatedPlace["description"] = description;
-  updatedPlace["address"] = address;
-
-  PLACES[index] = updatedPlace;
-
-  res.json({ message: "Updated place!!", updatedPlace });
 };
 
 const createPlace = async (req, res, next) => {
@@ -99,14 +93,12 @@ const createPlace = async (req, res, next) => {
     creator,
   });
 
-  try{
-    await newPlace.save()
-  }catch(err){
-    return next(new HttpError(err.message, 401))
+  try {
+    await newPlace.save();
+    res.status(201).json({ message: "Added new place!!", newPlace: newPlace });
+  } catch (err) {
+    return next(new HttpError(err.message, 401));
   }
-  
-  // PLACES.push(newPlace);
-  res.status(201).json({ message: "Added new place!!", newPlace: newPlace });
 };
 
 exports.getPlacesByUserId = getPlacesByUserId;
