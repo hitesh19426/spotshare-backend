@@ -39,7 +39,7 @@ const deletePlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
 
   try {
-    const result = Place.findOneAndDelete({ _id: placeId });
+    const result = await Place.findByIdAndRemove(placeId);
     return res.json({ message: "Deleted Place!!", result });
   } catch (err) {
     return next(new HttpError("Place not found", 404));
@@ -58,7 +58,7 @@ const updatePlaceById = async (req, res, next) => {
   const { title, description, address } = req.body;
 
   try {
-    const result = Place.findByIdAndUpdate(placeId, {
+    const result = await Place.findByIdAndUpdate(placeId, {
       title: title,
       description: description,
       address: address,
