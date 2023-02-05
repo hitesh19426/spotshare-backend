@@ -9,13 +9,19 @@ const getPlaceById = (req, res, next) => {
   console.log("Get request to api/places/:placeId");
   const placeId = req.params.placeId;
 
-  const place = PLACES.find((place) => place.id === placeId);
+  // const place = PLACES.find((place) => place.id === placeId);
+  Place.findById(placeId, (err, place) => {
+    if(err)
+      return next(new HttpError("Place not found!!", 404));
+    
+    return res.json({ message: "Place Found!!", place });
+  })
 
-  if (!place) {
-    return next(new HttpError("Place not found!!", 404));
-  }
+  // if (!place) {
+  //   return next(new HttpError("Place not found!!", 404));
+  // }
 
-  res.json({ message: "Place Found!!", place });
+  // res.json({ message: "Place Found!!", place });
 };
 
 const getPlacesByUserId = (req, res, next) => {
@@ -85,15 +91,6 @@ const createPlace = async (req, res, next) => {
   if (!user) {
     return new HttpError("User not found", 404);
   }
-
-  // const newPlace = {
-  //   id: uuid.v4(),
-  //   title: title,
-  //   description: description,
-  //   address: address,
-  //   location: location,
-  //   creator: creator,
-  // };
 
   const newPlace = new Place({
     title,
