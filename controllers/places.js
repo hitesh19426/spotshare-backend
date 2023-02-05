@@ -18,7 +18,7 @@ const getPlaceById = (req, res, next) => {
 
 };
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
   console.log("Get request to api/places/user/:userId");
 
   const userId = req.params.userId;
@@ -28,8 +28,13 @@ const getPlacesByUserId = (req, res, next) => {
     return next(new HttpError("User not found", 404));
   }
 
-  const places = PLACES.filter((place) => place.creator === userId);
-  res.json({ message: "Places Found!!", places });
+  console.log(userId);
+
+  Place.find({creator: userId}, (err, places) => {
+    if(err)
+      return next(new HttpError("Places not found", 404))
+    res.json({ message: "Places Found!!", places });
+  })
 };
 
 const deletePlaceById = async (req, res, next) => {
