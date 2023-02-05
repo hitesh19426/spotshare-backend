@@ -9,7 +9,6 @@ const getPlaceById = (req, res, next) => {
   console.log("Get request to api/places/:placeId");
   const placeId = req.params.placeId;
 
-  // const place = PLACES.find((place) => place.id === placeId);
   Place.findById(placeId, (err, place) => {
     if(err)
       return next(new HttpError("Place not found!!", 404));
@@ -17,11 +16,6 @@ const getPlaceById = (req, res, next) => {
     return res.json({ message: "Place Found!!", place });
   })
 
-  // if (!place) {
-  //   return next(new HttpError("Place not found!!", 404));
-  // }
-
-  // res.json({ message: "Place Found!!", place });
 };
 
 const getPlacesByUserId = (req, res, next) => {
@@ -38,17 +32,16 @@ const getPlacesByUserId = (req, res, next) => {
   res.json({ message: "Places Found!!", places });
 };
 
-const deletePlaceById = (req, res, next) => {
+const deletePlaceById = async (req, res, next) => {
   console.log("delete request to api/places/:placeId");
   const placeId = req.params.placeId;
 
-  const index = PLACES.findIndex((place) => place.id === placeId);
-  if (index === -1) {
-    return next(new HttpError("Place not found", 404));
-  }
-
-  PLACES.splice(index, 1);
-  res.json({ message: "Deleted Place!!", PLACES });
+    Place.findOneAndDelete({_id : placeId}, (err, result) => {
+      if(err)
+        return next(new HttpError("Place not found", 404));
+      
+      return res.json({ message: "Deleted Place!!", result });
+    })
 };
 
 const updatePlaceById = (req, res, next) => {
