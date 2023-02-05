@@ -10,7 +10,7 @@ const getPlaceById = async (req, res, next) => {
 
   try {
     const place = await Place.findById(placeId);
-    res.json({ message: "Place Found!!", place });
+    res.json({ message: "Place Found!!", place: place.toObject({getters: true}) });
   } catch (err) {
     return next(new HttpError("Place not found!!", 404));
   }
@@ -28,7 +28,7 @@ const getPlacesByUserId = async (req, res, next) => {
 
   try {
     const places = await Place.find({ creator: userId });
-    res.json({ message: "Places Found!!", places });
+    res.json({ message: "Places Found!!", places: places.map(place => place.toObject({getters: true})) });
   } catch (err) {
     return next(new HttpError("Places not found", 404));
   }
@@ -39,8 +39,8 @@ const deletePlaceById = async (req, res, next) => {
   const placeId = req.params.placeId;
 
   try {
-    const result = await Place.findByIdAndRemove(placeId);
-    return res.json({ message: "Deleted Place!!", result });
+    const place = await Place.findByIdAndRemove(placeId);
+    return res.json({ message: "Deleted Place!!", place: place.toObject() });
   } catch (err) {
     return next(new HttpError("Place not found", 404));
   }
@@ -58,12 +58,12 @@ const updatePlaceById = async (req, res, next) => {
   const { title, description, address } = req.body;
 
   try {
-    const result = await Place.findByIdAndUpdate(placeId, {
+    const place = await Place.findByIdAndUpdate(placeId, {
       title: title,
       description: description,
       address: address,
     });
-    res.json({ message: "Updated place!!", result });
+    res.json({ message: "Updated place!!", place: place.toObject({getters: true}) });
   } catch (err) {
     return next(new HttpError("Place not updated, some error occured", 404));
   }
