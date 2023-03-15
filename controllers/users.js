@@ -21,7 +21,7 @@ const SignUpUser = async (req, res, next) => {
   }
 
   console.log("want to signup user");
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   try{
     const existingUser = await User.findOne({email: email})
@@ -32,7 +32,7 @@ const SignUpUser = async (req, res, next) => {
     return next(new HttpError("Signing up failed, try again later", 500));
   }
   
-  const newUser = new User({name, email, password, places })
+  const newUser = new User({name, email, password, places: [] })
 
   try{
     await newUser.save()
