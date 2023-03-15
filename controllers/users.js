@@ -59,12 +59,12 @@ const LoginUser = async (req, res, next) => {
     return next(new HttpError('Error occured while fetching user. Try again.', 401))
   }
   
-  user = user.toObject({getters: true});
   if (!user || password !== user.password) {
     return next(new HttpError("Wrong credentials", 401));
   }
 
   // TODO: Exclude password while sending response
+  user = user.toObject({getters: true});
   const requiredUser = ( ({name, email, imageUrl, places, id}) => ({name, email, imageUrl, places, id}) )(user);
   res.json({ message: "loged in user!!", user: requiredUser});
 };
