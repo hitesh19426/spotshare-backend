@@ -1,8 +1,6 @@
-const uuid = require("uuid");
 const { validationResult } = require("express-validator");
-const User = require("./../models/users")
-
 const HttpError = require("./../models/http-error");
+const User = require("./../models/users")
 
 const getListOfUsers = async (req, res, next) => {
   console.log("will return a list of users");
@@ -14,7 +12,6 @@ const getListOfUsers = async (req, res, next) => {
     return next(new HttpError('Error finding users. Please try again'));
   }
 
-  // res.json({ message: "returned users!!", USERS });
 };
 
 const SignUpUser = async (req, res, next) => {
@@ -62,7 +59,6 @@ const LoginUser = async (req, res, next) => {
     return next(new HttpError('Error occured while fetching user. Try again.', 401))
   }
   
-  // const user = USERS.find((user) => user.email === email);
   user = user.toObject({getters: true});
   if (!user || password !== user.password) {
     return next(new HttpError("Wrong credentials", 401));

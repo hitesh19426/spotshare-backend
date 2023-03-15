@@ -1,7 +1,5 @@
 const { validationResult } = require("express-validator");
-
 const HttpError = require("./../models/http-error");
-const { USERS } = require("./../DUMMY_DATA");
 const Place = require("./../models/places");
 const User = require('./../models/users')
 
