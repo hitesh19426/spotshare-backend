@@ -55,6 +55,7 @@ const deletePlaceById = async (req, res, next) => {
     session = await mongoose.startSession();
     session.startTransaction();
     
+    // TODO: Check how this logic was working -> how to update nested fields
     await place.remove({session});
     place.creator.places.pull(place);
     await place.creator.save({session})

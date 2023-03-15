@@ -36,7 +36,8 @@ const SignUpUser = async (req, res, next) => {
 
   try{
     await newUser.save()
-    res.status(201).json({ message: "signed up user!!", user: newUser.toObject({getters: true}) });
+    const requiredUser = ( ({name, email, imageUrl, places, id}) => ({name, email, imageUrl, places, id}) )(newUser);
+    res.status(201).json({ message: "signed up user!!", user: requiredUser});
   }catch(err){
     return next(new HttpError('Signup failed, try again', 500));
   }
@@ -63,8 +64,7 @@ const LoginUser = async (req, res, next) => {
     return next(new HttpError("Wrong credentials", 401));
   }
 
-  // TODO: Exclude password while sending response
-  user = user.toObject({getters: true});
+  // TODO: Exclude password while sending response -> Done
   const requiredUser = ( ({name, email, imageUrl, places, id}) => ({name, email, imageUrl, places, id}) )(user);
   res.json({ message: "loged in user!!", user: requiredUser});
 };
