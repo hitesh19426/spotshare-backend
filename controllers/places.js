@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 const HttpError = require("./../models/http-error");
 const { USERS } = require("./../DUMMY_DATA");
 const Place = require("./../models/places");
+const User = require('./../models/users')
 
 const getPlaceById = async (req, res, next) => {
   console.log("Get request to api/places/:placeId");
@@ -20,7 +21,12 @@ const getPlacesByUserId = async (req, res, next) => {
   console.log("Get request to api/places/user/:userId");
 
   const userId = req.params.userId;
-  const user = USERS.find((user) => user.id === userId);
+  let user;
+  try{
+    user = await User.findById(userId);
+  }catch(err){
+    return next(new HttpError('Error finding user for given ID', 401));
+  }
 
   if (!user) {
     return next(new HttpError("User not found", 404));
@@ -75,14 +81,9 @@ const createPlace = async (req, res, next) => {
     return next(new HttpError(errors, 404));
   }
 
-  // console.log('post request to api/places/');
+  console.log('post request to api/places/');
   //TODO: See if you can setup google account for location
   const { title, description, address, location, image, creator } = req.body;
-
-  const user = USERS.find((user) => user.id === creator);
-  if (!user) {
-    return new HttpError("User not found", 404);
-  }
 
   const newPlace = new Place({
     title,
